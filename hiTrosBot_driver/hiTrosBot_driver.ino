@@ -25,6 +25,26 @@ AccelStepper stepperZ(AccelStepper::DRIVER, 7, 6); //step, direction
 // t axis
 AccelStepper stepperP(AccelStepper::DRIVER, 9, 8); //step, direction
 
+
+boolean isXInitPositionReached = false;
+boolean isYInitPositionReached = false;
+boolean isZInitPositionReached = false;
+
+const int limitSwitchX = 18;    // the number of the pushbutton pin
+const int limitSwitchY = 19;    // the number of the pushbutton pin
+const int limitSwitchZ = 20;    // the number of the pushbutton pin
+
+int limitSwitchStateX = HIGH;             // the current reading from the input pin
+int limitSwitchStateY = HIGH;             // the current reading from the input pin
+int limitSwitchStateZ = HIGH;             // the current reading from the input pin
+
+int lastLimitSwitchStateX = LOW;   // the previous reading from the input pin
+int lastLimitSwitchStateY = LOW;   // the previous reading from the input pin
+int lastLimitSwitchStateZ = LOW;   // the previous reading from the input pin
+
+unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
+unsigned long debounceDelay = 5;    // the debounce time; increase if the output flickers
+
 int dir = 0;
 int count = 0;
 char command[MAX_SIZE_COMMAND];
