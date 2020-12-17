@@ -17,13 +17,13 @@
 #define MAX_SPEED 7000
 
 // x axis
-AccelStepper stepperX(AccelStepper::DRIVER, 3, 2); //step, direction
+AccelStepper stepperX(AccelStepper::DRIVER, 11, 10); //step, direction
 // y axis
-AccelStepper stepperY(AccelStepper::DRIVER, 5, 4); //step, direction
+AccelStepper stepperY(AccelStepper::DRIVER, 9, 8); //step, direction
 // z axis
 AccelStepper stepperZ(AccelStepper::DRIVER, 7, 6); //step, direction
 // t axis
-AccelStepper stepperP(AccelStepper::DRIVER, 9, 8); //step, direction
+AccelStepper stepperP(AccelStepper::DRIVER, 5, 4); //step, direction
 
 
 boolean isXInitPositionReached = false;
@@ -66,6 +66,12 @@ boolean inHomeX = false;
 boolean inHomeY = false;
 boolean inHomeZ = false;
 boolean inHomeT = false;
+
+// default speed for each motor
+int speedValueMotorX = 50;
+int speedValueMotorY = 50;
+int speedValueMotorZ = 50;
+int speedValueMotorT = 50;
 
 void setup()
 {  
