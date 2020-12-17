@@ -78,6 +78,10 @@ const int limitSwitchY = 23;    // pin number of the limit switch for motor Y
 const int limitSwitchZ = 24;    // pin number of the limit switch for motor Z
 const int limitSwitchT = 25;    // pin number of the limit switch for motor Z
 
+// debouncing values of limit swithces for calibration process
+unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
+unsigned long debounceDelay = 5;    // the debounce time; increase if the output flickers
+
 void setup()
 {  
     stepperX.move(0);
