@@ -30,20 +30,16 @@ boolean isXInitPositionReached = false;
 boolean isYInitPositionReached = false;
 boolean isZInitPositionReached = false;
 
-const int limitSwitchX = 18;    // the number of the pushbutton pin
-const int limitSwitchY = 19;    // the number of the pushbutton pin
-const int limitSwitchZ = 20;    // the number of the pushbutton pin
-
 int limitSwitchStateX = HIGH;             // the current reading from the input pin
 int limitSwitchStateY = HIGH;             // the current reading from the input pin
 int limitSwitchStateZ = HIGH;             // the current reading from the input pin
 
+int lastLimitSwitchState = LOW;   // the previous reading from the input pin
 int lastLimitSwitchStateX = LOW;   // the previous reading from the input pin
 int lastLimitSwitchStateY = LOW;   // the previous reading from the input pin
 int lastLimitSwitchStateZ = LOW;   // the previous reading from the input pin
 
-unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
-unsigned long debounceDelay = 5;    // the debounce time; increase if the output flickers
+bool limitSwitchState = false;
 
 int dir = 0;
 int count = 0;
@@ -157,6 +153,28 @@ bool executeCommand(char cmdReceived[][MAX_SIZE_COMMAND])
 
     /* Calibration of X axis */
     if( !strcmp(cmdReceived[0],"@CALX") )
+    {
+        if( strcmp(cmdReceived[1]," ") )
+        {
+            step_size_int[0] = atoi(cmdReceived[1]);
+             
+            stepperX.move(step_size_int[0]);
+            stepperX.setSpeed(MAX_SPEED);
+      
+            while( stepperX.distanceToGo() != 0 )
+                stepperX.runSpeedToPosition();
+                
+            stepperX.move(0);
+            stepperX.setSpeed(MAX_SPEED);
+            stepperX.runSpeedToPosition();                
+  
+            return true;
+        }
+        else       
+            return false;
+    }
+    /* Calibration of X axis with stop condition from limit switch*/
+    if( !strcmp(cmdReceived[0],"@CALXS") )
     {
         if( strcmp(cmdReceived[1]," ") )
         {
@@ -869,7 +887,7 @@ void sendNACK()
 /* Check the command received */
 bool commandList(char *cmdReceived)
 {
-    char *commandArray[] = {"@CALSTART\r","@CALX","@CALY","@CALZ","@CALT","@CALSTATUS\r","@CALNOW\r","@CALEND\r","@MOVHOME\r","@MOVRX","@MOVRY",
+    char *commandArray[] = {"@CALSTART\r","@CALX","@CALXS","@CALY","@CALZ","@CALT","@CALSTATUS\r","@CALNOW\r","@CALEND\r","@MOVHOME\r","@MOVRX","@MOVRY",
                             "@MOVRZ","@MOVRT","@MOVAX","@MOVAY","@MOVAZ","@MOVAT","@MOVRALL","@MOVAALL","@STOPALL\r","@GETALLPOS\r","@COMSTATUS\r"};
     int ncommands = 22;
     
@@ -880,5 +898,27 @@ bool commandList(char *cmdReceived)
     }
     
     return false;
+}
+
+bool getLimitSwitchStatus(int limitSwitchPin)
+{
+    int reading = digitalRead(limitSwitchPin);  //0 = x, 1 = y, 2 = z, 3 = t
+    // If the switch changed, due to noise or pressing:
+    if (reading != lastLimitSwitchState) {
+      // reset the debouncing timer
+      lastDebounceTime = millis();
+    }
+    
+    if ((millis() - lastDebounceTime) > debounceDelay) {
+      // if the button state has changed:
+      if (reading != limitSwitchPin) {
+        limitSwitchState = reading;
+      }
+    }
+    
+    // save the reading. Next time through the loop, it'll be the lastButtonState:
+    lastLimitSwitchState = reading;
+
+    return limitSwitchState;
 }
 
