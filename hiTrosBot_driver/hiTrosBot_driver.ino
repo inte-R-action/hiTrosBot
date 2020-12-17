@@ -73,6 +73,11 @@ int speedValueMotorY = 50;
 int speedValueMotorZ = 50;
 int speedValueMotorT = 50;
 
+const int limitSwitchX = 22;    // pin number of the limit switch for motor X
+const int limitSwitchY = 23;    // pin number of the limit switch for motor Y
+const int limitSwitchZ = 24;    // pin number of the limit switch for motor Z
+const int limitSwitchT = 25;    // pin number of the limit switch for motor Z
+
 void setup()
 {  
     stepperX.move(0);
