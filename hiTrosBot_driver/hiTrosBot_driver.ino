@@ -174,22 +174,26 @@ bool executeCommand(char cmdReceived[][MAX_SIZE_COMMAND])
             return false;
     }
     /* Calibration of X axis with stop condition from limit switch*/
-    if( !strcmp(cmdReceived[0],"@CALXS") )
+    if( !strcmp(cmdReceived[0],"@CALXLS") )
     {
         if( strcmp(cmdReceived[1]," ") )
         {
-            step_size_int[0] = atoi(cmdReceived[1]);
-             
-            stepperX.move(step_size_int[0]);
-            stepperX.setSpeed(MAX_SPEED);
-      
-            while( stepperX.distanceToGo() != 0 )
-                stepperX.runSpeedToPosition();
-                
-            stepperX.move(0);
-            stepperX.setSpeed(MAX_SPEED);
-            stepperX.runSpeedToPosition();                
-  
+            limitSwitchStateX = getLimitSwitchStatus(limitSwitchX);
+            while( limitSwitchStateX == HIGH )
+            {      
+                stepperX.move(1);
+                stepperX.setSpeed(MAX_SPEED);
+                while (stepperX.currentPosition() != stepperX.targetPosition())
+                { 
+                    stepperX.runSpeedToPosition();
+                }
+                                
+                stepperX.move(0);
+                stepperX.setSpeed(0);
+                stepperX.stop();
+                stepperX.runToPosition();
+            }
+
             return true;
         }
         else       
@@ -887,7 +891,7 @@ void sendNACK()
 /* Check the command received */
 bool commandList(char *cmdReceived)
 {
-    char *commandArray[] = {"@CALSTART\r","@CALX","@CALXS","@CALY","@CALZ","@CALT","@CALSTATUS\r","@CALNOW\r","@CALEND\r","@MOVHOME\r","@MOVRX","@MOVRY",
+    char *commandArray[] = {"@CALSTART\r","@CALX","@CALXLS","@CALY","@CALZ","@CALT","@CALSTATUS\r","@CALNOW\r","@CALEND\r","@MOVHOME\r","@MOVRX","@MOVRY",
                             "@MOVRZ","@MOVRT","@MOVAX","@MOVAY","@MOVAZ","@MOVAT","@MOVRALL","@MOVAALL","@STOPALL\r","@GETALLPOS\r","@COMSTATUS\r"};
     int ncommands = 22;
     
