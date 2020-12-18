@@ -221,6 +221,32 @@ bool executeCommand(char cmdReceived[][MAX_SIZE_COMMAND])
         else
             return false;
     }
+    /* Calibration of Y axis with stop condition from limit switch*/
+    if( !strcmp(cmdReceived[0],"@CALYLS") )
+    {
+        if( strcmp(cmdReceived[1]," ") )
+        {
+            limitSwitchStateY = getLimitSwitchStatus(limitSwitchY);
+            while( limitSwitchStateY == HIGH )
+            {      
+                stepperY.move(1);
+                stepperY.setSpeed(MAX_SPEED);
+                while (stepperY.currentPosition() != stepperY.targetPosition())
+                { 
+                    stepperY.runSpeedToPosition();
+                }
+                                
+                stepperY.move(0);
+                stepperY.setSpeed(0);
+                stepperY.stop();
+                stepperY.runToPosition();
+            }
+
+            return true;
+        }
+        else       
+            return false;
+    }
     /* Calibration of Z axis */
     else if( !strcmp(cmdReceived[0],"@CALZ") )
     {
@@ -241,6 +267,32 @@ bool executeCommand(char cmdReceived[][MAX_SIZE_COMMAND])
             return true;
         }
         else
+            return false;
+    }
+    /* Calibration of Z axis with stop condition from limit switch*/
+    if( !strcmp(cmdReceived[0],"@CALZLS") )
+    {
+        if( strcmp(cmdReceived[1]," ") )
+        {
+            limitSwitchStateZ = getLimitSwitchStatus(limitSwitchZ);
+            while( limitSwitchStateZ == HIGH )
+            {      
+                stepperZ.move(1);
+                stepperZ.setSpeed(MAX_SPEED);
+                while (stepperZ.currentPosition() != stepperZ.targetPosition())
+                { 
+                    stepperZ.runSpeedToPosition();
+                }
+                                
+                stepperZ.move(0);
+                stepperZ.setSpeed(0);
+                stepperZ.stop();
+                stepperZ.runToPosition();
+            }
+
+            return true;
+        }
+        else       
             return false;
     }
     /* Calibration of T axis */
@@ -891,7 +943,7 @@ void sendNACK()
 /* Check the command received */
 bool commandList(char *cmdReceived)
 {
-    char *commandArray[] = {"@CALSTART\r","@CALX","@CALXLS","@CALY","@CALZ","@CALT","@CALSTATUS\r","@CALNOW\r","@CALEND\r","@MOVHOME\r","@MOVRX","@MOVRY",
+    char *commandArray[] = {"@CALSTART\r","@CALX","@CALXLS","@CALY","@CALYLS","@CALZ","@CALT","@CALSTATUS\r","@CALNOW\r","@CALEND\r","@MOVHOME\r","@MOVRX","@MOVRY",
                             "@MOVRZ","@MOVRT","@MOVAX","@MOVAY","@MOVAZ","@MOVAT","@MOVRALL","@MOVAALL","@STOPALL\r","@GETALLPOS\r","@COMSTATUS\r"};
     int ncommands = 22;
     
